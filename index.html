@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maternal Health SMS App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #ff6b6b;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .tips {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .tips h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .tips ul {
+            list-style: none;
+        }
+
+        .tips li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tips li:before {
+            content: "💡 ";
+            margin-right: 10px;
+        }
+
+        .users-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .user-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-info h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤱 Maternal Health SMS</h1>
+            <p>Empowering mothers with timely health reminders and education</p>
+        </div>
+
+        <div class="content">
+            <!-- Registration Section -->
+            <div class="section">
+                <h2>📝 Register New User</h2>
+                <form id="registrationForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number (International Format)</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+1234567890" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dueDate">Due Date</label>
+                        <input type="date" id="dueDate" name="dueDate" required>
+                    </div>
+                    <button type="submit" class="btn">Register User</button>
+                </form>
+                <div id="registrationStatus" class="status"></div>
+            </div>
+
+            <!-- Users Section -->
+            <div class="section">
+                <h2>👥 Registered Users</h2>
+                <button onclick="loadUsers()" class="btn">Refresh Users</button>
+                <div id="usersList" class="users-list">
+                    <div class="loading">Click "Refresh Users" to load the list</div>
+                </div>
+            </div>
+
+            <!-- Actions Section -->
+            <div class="section">
+                <h2>⚡ Quick Actions</h2>
+                <button onclick="sendReminders()" class="btn">Send Reminders</button>
+                <button onclick="loadHealthTips()" class="btn">Load Health Tips</button>
+                <div id="actionStatus" class="status"></div>
+            </div>
+
+            <!-- Health Tips Section -->
+            <div class="section">
+                <h2>💡 Health Tips</h2>
+                <div id="healthTips" class="tips">
+                    <h3>Maternal Health Guidelines</h3>
+                    <ul>
+                        <li>Eat a balanced diet rich in iron and folic acid</li>
+                        <li>Attend all antenatal visits regularly</li>
+                        <li>Report any unusual symptoms to your health worker</li>
+                        <li>Keep your environment clean to prevent infections</li>
+                        <li>Stay hydrated and get adequate rest</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+
+        // Registration form handler
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = {
+                name: formData.get('name'),
+                phone: formData.get('phone'),
+                dueDate: formData.get('dueDate')
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showStatus('registrationStatus', 'User registered successfully!', 'success');
+                    e.target.reset();
+                    loadUsers(); // Refresh users list
+                } else {
+                    showStatus('registrationStatus', `Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus('registrationStatus', 'Network error. Please try again.', 'error');
+            }
+        });
+
+        // Load users
+        async function loadUsers() {
+            const usersList = document.getElementById('usersList');
+            usersList.innerHTML = '<div class="loading">Loading users...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/users`);
+                const result = await response.json();
+
+                if (response.ok && result.users.length > 0) {
+                    usersList.innerHTML = result.users.map(user => `
+                        <div class="user-item">
+                            <div class="user-info">
+                                <h4>${user.name}</h4>
+                                <p>📱 ${user.phone} | 📅 Due: ${user.dueDate}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    usersList.innerHTML = '<div class="loading">No users found</div>';
+                }
+            } catch (error) {
+                usersList.innerHTML = '<div class="loading">Error loading users</div>';
+            }
+        }
+
+        // Send reminders
+        async function sendReminders() {
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Sending...';
+            button.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/send-reminders`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    showStatus('actionStatus', `Reminders sent! ${result.results?.length || 0} messages processed.`, 'success');
+                } else {
+                    showStatus('actionStatus', `Error: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus('actionStatus', 'Network error. Please try again.', 'error');
+            } finally {
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+
+        // Load health tips
+        async function loadHealthTips() {
+            try {
+                const response = await fetch(`${API_BASE}/education`);
+                const result = await response.json();
+
+                if (response.ok) {
+                    const tipsHtml = result.tips.map(category => `
+                        <h4>${category.category}</h4>
+                        <ul>
+                            ${category.tips.map(tip => `<li>${tip}</li>`).join('')}
+                        </ul>
+                    `).join('');
+                    
+                    document.getElementById('healthTips').innerHTML = tipsHtml;
+                    showStatus('actionStatus', 'Health tips loaded successfully!', 'success');
+                } else {
+                    showStatus('actionStatus', 'Error loading health tips', 'error');
+                }
+            } catch (error) {
+                showStatus('actionStatus', 'Network error. Please try again.', 'error');
+            }
+        }
+
+        // Show status messages
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+            element.style.display = 'block';
+            
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        // Load users on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUsers();
+        });
+    </script>
+</body>
+</html> 
